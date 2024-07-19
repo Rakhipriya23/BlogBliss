@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "658987262874",
+    "firebase_url": "https://blogging-app-14113-default-rtdb.firebaseio.com",
+    "project_id": "blogging-app-14113",
+    "storage_bucket": "blogging-app-14113.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658987262874:android:57ad1364d6fa7a39271023",
+        "android_client_info": {
+          "package_name": "com.example.blogging_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6ZUzPBxqkpzzNJFggw79AA9MldQBq9ck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658987262874:android:0270ea7f263cfb6d271023",
+        "android_client_info": {
+          "package_name": "com.example.bloggingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6ZUzPBxqkpzzNJFggw79AA9MldQBq9ck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

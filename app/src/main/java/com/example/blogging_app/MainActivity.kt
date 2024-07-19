@@ -1,17 +1,30 @@
 package com.example.blogging_app
 
+import android.app.Notification
 import android.os.Bundle
+import android.provider.ContactsContract.Profile
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.internal.composableLambda
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.example.blogging_app.Screens.SignInScreen
+import com.example.blogging_app.Screens.SignupScreen
+import com.example.blogging_app.Screens.SplashScreen
 import com.example.blogging_app.ui.theme.BloggingAppTheme
+import androidx.navigation.NavHost as NavHost
+import androidx.navigation.compose.composable
+import com.example.blogging_app.ui.theme.BloggingAppTheme
+import com.example.blogging_app.Screens.AddPost
+import com.example.blogging_app.Screens.BottomNav
+import com.example.blogging_app.Screens.HomePage
+import com.example.blogging_app.Screens.Notification
+import com.example.blogging_app.Screens.Profile
+import com.example.blogging_app.Screens.Search
+import com.example.blogging_app.model.BottomNavItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +32,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BloggingAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MyApp()
+//                HomePage()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MyApp() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BloggingAppTheme {
-        Greeting("Android")
+    NavHost(navController = navController, startDestination = "splash") {
+        composable("splash") { SplashScreen(navController) }
+        composable("signin") { SignInScreen(navController) }
+        composable("signup") { SignupScreen(navController) }
+        composable("bottomnav") { BottomNav(navController) }
+
     }
 }
+// Add more composables for other screens as needed
