@@ -13,7 +13,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 
@@ -26,6 +25,9 @@ class AuthViewModel : ViewModel() {
 
      private val _firebaseUser = MutableLiveData<FirebaseUser?>()
      val firebaseUser: LiveData<FirebaseUser?> = _firebaseUser
+
+     private val _userData = MutableLiveData<UserModel>()
+     val userData: LiveData<UserModel> = _userData
 
      private val _error = MutableLiveData<String>()
      val error: LiveData<String> = _error
@@ -119,5 +121,18 @@ class AuthViewModel : ViewModel() {
      fun logout() {
           auth.signOut()
           _firebaseUser.postValue(null)
+     }
+
+     internal fun fetchUserData(uid: String) {
+          userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+               override fun onDataChange(snapshot: DataSnapshot) {
+                    val user = snapshot.getValue(UserModel::class.java)
+                    _userData.postValue(user!!)
+               }
+
+               override fun onCancelled(error: DatabaseError) {
+                    _error.postValue(error.message)
+               }
+          })
      }
 }
