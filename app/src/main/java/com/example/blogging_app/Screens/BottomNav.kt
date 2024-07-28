@@ -1,37 +1,20 @@
 package com.example.blogging_app.Screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.example.blogging_app.model.BottomNavItem
+import androidx.navigation.compose.*
 import com.example.blogging_app.R
+import com.example.blogging_app.model.BottomNavItem
+import com.example.blogging_app.navigation.Routes
 import com.example.blogging_app.viewmodel.AuthViewModel
 
 @Composable
@@ -42,26 +25,47 @@ fun BottomNav(navController: NavHostController) {
     ) { innerPadding ->
         NavHost(
             navController = navController1,
-            startDestination = "home_route",
+            startDestination = Routes.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home_route") { HomePage(navController) }
-            composable("search_route") { Search(navController) }
-            composable("add_route") { AddPost(navController1) }
-            composable("notification_route") { Notification(navController1) }
-            composable("profile_route") { Profile(navController) }
+            composable(Routes.Home.route) { HomePage(navController) }
+            composable(Routes.Search.route) { Search(navController) }
+            composable(Routes.Add.route) { AddPost(navController1) }
+            composable(Routes.Notification.route) { Notification(navController1) }
+            composable(Routes.Profile.route) { Profile(navController) }
         }
     }
 }
+
 @Composable
-fun MyBottomBar(navController1: NavHostController){
-    val backStackEntry=navController1.currentBackStackEntryAsState()
+fun MyBottomBar(navController1: NavHostController) {
+    val backStackEntry = navController1.currentBackStackEntryAsState()
     val items = listOf(
-        BottomNavItem("Home", "home_route", ImageVector.vectorResource(id = R.drawable.baseline_home_24)),
-        BottomNavItem("Search", "search_route", ImageVector.vectorResource(id = R.drawable.baseline_search_24)),
-        BottomNavItem("Add", "add_route", ImageVector.vectorResource(id = R.drawable.baseline_add_24)),
-        BottomNavItem("Notification", "notification_route", ImageVector.vectorResource(id = R.drawable.baseline_favorite_border_24)),
-        BottomNavItem("Proile", "profile_route", ImageVector.vectorResource(id = R.drawable.baseline_person_24)),
+        BottomNavItem(
+            "Home",
+            Routes.Home.route,
+            ImageVector.vectorResource(id = R.drawable.baseline_home_24)
+        ),
+        BottomNavItem(
+            "Search",
+            Routes.Search.route,
+            ImageVector.vectorResource(id = R.drawable.baseline_search_24)
+        ),
+        BottomNavItem(
+            "Add",
+            Routes.Add.route,
+            ImageVector.vectorResource(id = R.drawable.baseline_add_24)
+        ),
+        BottomNavItem(
+            "Saved",
+            Routes.Notification.route,
+            ImageVector.vectorResource(id = R.drawable.baseline_bookmarks_24)
+        ),
+        BottomNavItem(
+            "Profile",
+            Routes.Profile.route,
+            ImageVector.vectorResource(id = R.drawable.baseline_person_24)
+        ),
     )
 
     BottomAppBar {
@@ -79,5 +83,4 @@ fun MyBottomBar(navController1: NavHostController){
             )
         }
     }
-
 }

@@ -72,7 +72,8 @@ fun Profile(navController: NavHostController) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                     contentDescription = "Back",
-                    tint = Color.Black
+                    tint = Color.Black,
+
                 )
             }
 

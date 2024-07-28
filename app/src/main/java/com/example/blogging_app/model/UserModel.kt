@@ -8,7 +8,5 @@ data class UserModel(
     val username:String="",
     val imageUrl: String="",
     val uid:String=""
-
-
 )
 

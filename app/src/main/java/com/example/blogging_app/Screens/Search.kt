@@ -49,7 +49,7 @@ fun Search(navHostController: NavHostController) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 17.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
 

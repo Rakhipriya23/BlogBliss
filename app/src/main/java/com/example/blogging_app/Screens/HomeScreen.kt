@@ -34,20 +34,3 @@ import androidx.navigation.NavHostController
 fun HomePage(navController: NavController) {
     Text(text = "Home")
 }
-//@Composable
-//fun BlogPostItem(post: BlogPost) {
-//    Card(
-//        modifier = Modifier
-//            .padding(horizontal = 8.dp, vertical = 4.dp)
-//            .fillMaxWidth(),
-////        elevation = 4.dp
-////        elevation= CardElevation = CardDefaults.cardElevation()
-//    ) {
-//        Column(modifier = Modifier.padding(16.dp)) {
-//            Text(text = post.title, style = MaterialTheme.typography.h6)
-//            Text(text = post.author, style = MaterialTheme.typography.caption)
-//            Spacer(modifier = Modifier.height(8.dp))
-//            Text(text = post.content)
-//        }
-//    }
-//}
