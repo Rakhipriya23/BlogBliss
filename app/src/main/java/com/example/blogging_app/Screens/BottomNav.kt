@@ -2,14 +2,20 @@ package com.example.blogging_app.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.blogging_app.R
@@ -28,7 +34,7 @@ fun BottomNav(navController: NavHostController) {
             startDestination = Routes.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Routes.Home.route) { HomePage(navController) }
+            composable(Routes.Home.route) { HomeScreen(navController) }
             composable(Routes.Search.route) { Search(navController) }
             composable(Routes.Add.route) { AddPost(navController1) }
             composable(Routes.Notification.route) { Notification(navController1) }
@@ -54,7 +60,7 @@ fun MyBottomBar(navController1: NavHostController) {
         BottomNavItem(
             "Add",
             Routes.Add.route,
-            ImageVector.vectorResource(id = R.drawable.baseline_add_24)
+            ImageVector.vectorResource(id = R.drawable.baseline_add_circle_24)
         ),
         BottomNavItem(
             "Saved",
@@ -68,19 +74,37 @@ fun MyBottomBar(navController1: NavHostController) {
         ),
     )
 
-    BottomAppBar {
-        items.forEach { item ->
-            BottomNavigationItem(
-                icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(item.title) },
-                selected = backStackEntry.value?.destination?.route == item.route,
-                onClick = {
-                    navController1.navigate(item.route) {
-                        popUpTo(navController1.graph.startDestinationId)
-                        launchSingleTop = true
+    BottomAppBar (
+        containerColor = Color(0xFF635383)
+    ){
+        items.forEach {
+            val selected=it.route==backStackEntry?.value?.destination?.route
+            NavigationBarItem(
+                selected = selected,
+                onClick = {navController1.navigate(it.route){
+                    popUpTo(navController1.graph.findStartDestination().id)
+                    {
+                        saveState=true
                     }
-                }
+                    launchSingleTop=true
+                } },
+                icon = {
+                    Icon(
+                        imageVector = it.icon,
+                        contentDescription = it.title,
+                        tint = if (selected) Color(0xFF4D036F) else Color.White // Use light purple for selected items
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+//                    selectedIconColor = Color.Black,
+//                    unselectedIconColor = Color.Black,
+//                    selectedTextColor = Color.White,
+//                    unselectedTextColor = Color.Gray,
+                    indicatorColor = Color.Transparent// Set the indicator color to light purple
+                ),
+
             )
+
         }
     }
 }

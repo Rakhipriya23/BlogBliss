@@ -60,8 +60,12 @@ fun SignInScreen(navController: NavHostController) {
             }
         }
     }
+
     error?.let {
-       Toast.makeText(context,it,Toast.LENGTH_SHORT).show()
+        LaunchedEffect(error) {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            authViewModel.clearError() // Clear the error after showing the toast to avoid repeated toasts
+        }
     }
 
     Box(
@@ -106,7 +110,7 @@ fun SignInScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it  },
+                onValueChange = { password = it },
                 label = { Text("Password", fontWeight = FontWeight.Bold) },
                 leadingIcon = {
                     Icon(imageVector = Icons.Outlined.Lock, contentDescription = "Password Icon")
@@ -118,10 +122,9 @@ fun SignInScreen(navController: NavHostController) {
             Button(
                 onClick = {
                     if (email.isNotEmpty() && password.isNotEmpty()) {
-                        authViewModel.login(email, password,context)
+                        authViewModel.login(email, password, context)
                     } else {
-                        Toast.makeText(context, "Please enter all fields", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(context, "Please enter all fields", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

@@ -6,6 +6,7 @@ sealed class Routes(val route: String) {
     object Splash : Routes("splash")
     object SignIn : Routes("signin")
     object SignUp : Routes("signup")
+    object Verfication :Routes("verify")
     object BottomNav : Routes("bottomnav")
 
     object Home : Routes("home_route")

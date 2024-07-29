@@ -219,7 +219,7 @@ fun AddPost(navController: NavController) {
             ) {
                 if (imageUri != null) {
                     // If an image is selected, display it inside the box
-//                    threadViewModel.saveData(thread,FirebaseAuth.getInstance().currentUser!!.uid,imageUri!!)
+//
                     AsyncImage(
                         model = imageUri,
                         contentDescription = null,

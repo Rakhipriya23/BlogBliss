@@ -1,6 +1,5 @@
 package com.example.blogging_app.Screens
 
-import android.provider.ContactsContract.CommonDataKinds.Email
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.blogging_app.R
+import com.example.blogging_app.navigation.Routes
 import com.example.blogging_app.utils.SharedPref
 import com.example.blogging_app.viewmodel.AuthViewModel
 
@@ -37,8 +37,6 @@ fun Profile(navController: NavHostController) {
 
     val username = remember { SharedPref.getUserName(context) }
     val imageUri = remember { SharedPref.getImage(context) }
-
-
 
     LaunchedEffect(firebaseUser) {
         if (firebaseUser == null) {
@@ -64,16 +62,14 @@ fun Profile(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {
-                navController.navigate("home_route") {
+                navController.navigate(Routes.Home.route) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     launchSingleTop = true
                 }
             }) {
-                Icon(
+                Image(
                     painter = painterResource(id = R.drawable.baseline_arrow_back_24),
-                    contentDescription = "Back",
-                    tint = Color.Black,
-
+                    contentDescription = "Back"
                 )
             }
 
@@ -116,10 +112,14 @@ fun Profile(navController: NavHostController) {
                     .fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(17.dp))
-            ProfileOptionButton(text = "Add new article", icon = R.drawable.baseline_add_box_24,)
+            ProfileOptionButton(text = "Add new article", icon = R.drawable.baseline_add_box_24)
             ProfileOptionButton(text = "Your articles", icon = R.drawable.baseline_article_24)
             ProfileOptionButton(text = "Log out", icon = R.drawable.baseline_logout_24) {
                 authViewModel.logout()
+                navController.navigate("signin") {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }
@@ -144,5 +144,3 @@ fun ProfileOptionButton(text: String, icon: Int, onClick: () -> Unit = {}) {
         Text(text = text, color = Color.Black, fontSize = 18.sp)
     }
 }
-
-

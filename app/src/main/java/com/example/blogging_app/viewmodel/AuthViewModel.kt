@@ -1,5 +1,6 @@
 package com.example.blogging_app.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
@@ -134,5 +135,11 @@ class AuthViewModel : ViewModel() {
                     _error.postValue(error.message)
                }
           })
+
+     }
+     // Method to clear the error
+     @SuppressLint("NullSafeMutableLiveData")
+     fun clearError() {
+          _error.value = null
      }
 }
