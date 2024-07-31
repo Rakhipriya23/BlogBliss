@@ -1,5 +1,6 @@
 package com.example.blogging_app.Screens
 
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,6 +53,8 @@ fun SignInScreen(navController: NavHostController) {
     val firebaseUser by authViewModel.firebaseUser.observeAsState()
     val context = LocalContext.current
     val error by authViewModel.error.observeAsState()
+
+    var showResetDialog by remember { mutableStateOf(false) }
 
     firebaseUser?.let {
         LaunchedEffect(firebaseUser) {
@@ -118,6 +121,16 @@ fun SignInScreen(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation()
             )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Forgot Password Button
+            TextButton(
+                onClick = { showResetDialog = true },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Forgot Password?", color = Color.Blue)
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
@@ -157,6 +170,65 @@ fun SignInScreen(navController: NavHostController) {
                 }
             }
         }
+
+        if (showResetDialog) {
+            ResetPasswordDialog(
+                onDismiss = { showResetDialog = false },
+                onResetPassword = { email ->
+                    authViewModel.resetPassword(email, context)
+                    showResetDialog = false
+                }
+            )
+        }
     }
 }
+
+@Composable
+fun ResetPasswordDialog(onDismiss: () -> Unit, onResetPassword: (String) -> Unit) {
+    var email by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    androidx.compose.material.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Reset Password", fontWeight = FontWeight.SemiBold)
+        },
+        text = {
+            Column {
+                Text(text = "Enter your email to receive a password reset link.")
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email Icon")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        onResetPassword(email)
+                    } else {
+                        Toast.makeText(context, "Please enter a valid email", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9d6bfe)),
+            )
+            {
+                Text("Send Reset Link", color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
 

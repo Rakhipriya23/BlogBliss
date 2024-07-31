@@ -1,6 +1,8 @@
 package com.example.blogging_app.Screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,14 +21,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.blogging_app.R
 import com.example.blogging_app.item_view.UserItem
+import com.example.blogging_app.navigation.Routes
 import com.example.blogging_app.viewmodel.SearchViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,17 +52,38 @@ fun Search(navHostController: NavHostController) {
     }
 
     Column(
-        Modifier.background(Color.White)
+        Modifier
+            .background(Color.White)
             .fillMaxSize()
             .padding(17.dp)
     ) {
+        //top
+        Row(verticalAlignment = Alignment.CenterVertically
+        ,modifier = Modifier.padding(top = 10.dp, start = 16.dp, bottom = 10.dp)) {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_arrow_back_24),
+                contentDescription = "close",
+                modifier = Modifier.clickable {
+                    navHostController.navigate(Routes.Home.route)
+                }
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(text = "Search", style = TextStyle(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 24.sp,
+                color = Color.Black
+            ),
+                )
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+
         // Search bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             label = {
                 Text("Search by username",
-                    color = Color.DarkGray,
+                    color = if (isFocused) Color(0xFFab06f6) else Color.Gray,
                     fontWeight = FontWeight.Bold)
             },
             leadingIcon = {
@@ -64,6 +94,8 @@ fun Search(navHostController: NavHostController) {
                 )
             },
             colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
+                focusedTextColor = Color.Black,
+                cursorColor =Color(0xFFab06f6) ,
                 focusedBorderColor = Color(0xFFab06f6), // Purple color
                 unfocusedBorderColor = Color.DarkGray, // Grey color
                 focusedLeadingIconColor = Color(0xFFab06f6), // Purple color
@@ -82,7 +114,7 @@ fun Search(navHostController: NavHostController) {
         LazyColumn {
             items(filteredUsers) { user ->
                 UserItem(
-                    users = user,
+                    user = user,
                     navHostController = navHostController
                 )
             }

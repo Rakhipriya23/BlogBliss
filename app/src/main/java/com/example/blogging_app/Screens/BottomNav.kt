@@ -35,10 +35,11 @@ fun BottomNav(navController: NavHostController) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.Home.route) { HomeScreen(navController) }
-            composable(Routes.Search.route) { Search(navController) }
+            composable(Routes.Search.route) { Search(navController1) }
             composable(Routes.Add.route) { AddPost(navController1) }
             composable(Routes.Notification.route) { Notification(navController1) }
             composable(Routes.Profile.route) { Profile(navController) }
+
         }
     }
 }
@@ -92,14 +93,12 @@ fun MyBottomBar(navController1: NavHostController) {
                     Icon(
                         imageVector = it.icon,
                         contentDescription = it.title,
-                        tint = if (selected) Color(0xFF4D036F) else Color.White // Use light purple for selected items
+                        tint = if (selected) Color(0xFF4D036F) else Color.White ,
+                        modifier = Modifier.size(32.dp)
+
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-//                    selectedIconColor = Color.Black,
-//                    unselectedIconColor = Color.Black,
-//                    selectedTextColor = Color.White,
-//                    unselectedTextColor = Color.Gray,
                     indicatorColor = Color.Transparent// Set the indicator color to light purple
                 ),
 

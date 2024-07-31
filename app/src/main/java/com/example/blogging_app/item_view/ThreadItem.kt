@@ -2,8 +2,10 @@ package com.example.blogging_app.item_view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
@@ -21,6 +23,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.blogging_app.model.ThreadModel
 import com.example.blogging_app.model.UserModel
+import com.example.blogging_app.navigation.Routes
 
 @Composable
 fun ThreadItem(
@@ -34,6 +37,9 @@ fun ThreadItem(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 5.dp)
             .background(Color.White)
+            .clickable {
+                val routes=Routes.OtherUsers.route.replace("{data}",users.uid)
+                navHostController.navigate(routes) }
     ) {
         Row(
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
@@ -78,6 +84,8 @@ fun ThreadItem(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+//                    .padding(16.dp)
+                    .clip(RoundedCornerShape(10.dp))
                     .height(200.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {

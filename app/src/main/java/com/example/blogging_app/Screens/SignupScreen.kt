@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -30,7 +31,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +57,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.blogging_app.R
 import com.example.blogging_app.viewmodel.AuthViewModel
 
-
 @Composable
 fun SignupScreen(navController: NavHostController) {
     var username by remember { mutableStateOf("") }
@@ -65,44 +65,31 @@ fun SignupScreen(navController: NavHostController) {
 
     val authViewModel: AuthViewModel = viewModel()
     val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
+    val error by authViewModel.error.observeAsState()
 
-    val permissionLauncher= rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission())
-    {
-        isGranded:Boolean->
-        if (isGranded){
-
-        }
-        else{
-
+    val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission granted
+        } else {
+            // Permission denied
         }
     }
+
     val context = LocalContext.current
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
     }
-    val permissionToRequest= if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
+    val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         android.Manifest.permission.READ_MEDIA_IMAGES
-    }
-    else{
+    } else {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     }
-    var launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         imageUri = uri
     }
 
-    LaunchedEffect(firebaseUser) {
-        if (firebaseUser != null) {
-            // Resetting firebaseUser after successful registration
-            authViewModel.logout()
-            navController.navigate("signin") {
-                popUpTo(navController.graph.startDestinationId)
-                launchSingleTop = true
-            }
-        }
-    }
     Box(modifier = Modifier
         .fillMaxSize()
-
         .background(Color(0xFFfafafa))) {
         Column(
             modifier = Modifier
@@ -126,67 +113,77 @@ fun SignupScreen(navController: NavHostController) {
                     painterResource(id = R.drawable.man)
                 else
                     rememberAsyncImagePainter(model = imageUri),
-                contentDescription = "upload Image",
+                contentDescription = "Upload Image",
                 modifier = Modifier
                     .size(96.dp)
                     .clip(CircleShape)
                     .background(color = Color.LightGray)
                     .clickable {
-                        //for direct choose image not require permission
-                       // launcher.launch("image/*")
-                        //for permission
-                        val isGranted=ContextCompat.checkSelfPermission(
-                            context,permissionToRequest
-                        )==PackageManager.PERMISSION_GRANTED
+                        val isGranted = ContextCompat.checkSelfPermission(
+                            context, permissionToRequest
+                        ) == PackageManager.PERMISSION_GRANTED
 
-                        if (isGranted){
+                        if (isGranted) {
                             launcher.launch("image/*")
-
-                        }else{
+                        } else {
                             permissionLauncher.launch(permissionToRequest)
-
                         }
-                               },
+                    },
                 contentScale = ContentScale.Crop
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Choose your profile photo", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
+
             // Username
             OutlinedTextField(
                 value = username,
-                onValueChange = {username=it},
-                label = { Text("Username",fontWeight = FontWeight.Bold, ) },
-                leadingIcon = { Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = "Username Icon", )},
+                onValueChange = { username = it },
+                label = { Text("Username", fontWeight = FontWeight.Bold) },
+                leadingIcon = { Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = "Username Icon") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
-            //Email
+
+            // Email
             OutlinedTextField(
                 value = email,
-                onValueChange = {email = it },
-                label = { Text("Email",
-                    fontWeight = FontWeight.Bold,) },
-                leadingIcon = { Icon(imageVector = Icons.Outlined.Email, contentDescription = "Username Icon") },
-                modifier = Modifier.fillMaxWidth()
+                onValueChange = {
+                    email = it
+                },
+                label = { Text(text = "Email", fontSize = 14.sp, fontWeight = FontWeight.Bold) },
+                leadingIcon = { Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email Icon") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth(),
+
             )
             Spacer(modifier = Modifier.height(16.dp))
+
             // Password
             OutlinedTextField(
                 value = password,
-                onValueChange = {password=it},
-                label = { Text("Password",fontWeight = FontWeight.Bold,) },
-                leadingIcon = { Icon(imageVector = Icons.Outlined.Lock, contentDescription = "Password Icon",) },
+                onValueChange = { password = it },
+                label = { Text("Password", fontWeight = FontWeight.Bold) },
+                leadingIcon = { Icon(imageVector = Icons.Outlined.Lock, contentDescription = "Password Icon") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation()
             )
             Spacer(modifier = Modifier.height(16.dp))
-            // Phone/Email ID Sign-In Button
+
+
+            error?.let {
+                Text(text = it, color = Color.Red, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Register Button
             Button(
                 onClick = {
                     if (username.isEmpty() || email.isEmpty() || password.isEmpty() || imageUri == null) {
-                        Toast.makeText(context, "Please! fill all details", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Please fill all details", Toast.LENGTH_SHORT).show()
                     } else {
                         val imageUriForUpload = imageUri!!
-                        authViewModel.register(email, password, username, imageUriForUpload, context)
+                        authViewModel.register(email, password, username, imageUriForUpload, context,navController )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -195,7 +192,7 @@ fun SignupScreen(navController: NavHostController) {
                     contentColor = Color.White
                 )
             ) {
-                androidx.compose.material3.Text(
+                Text(
                     text = "Register",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
@@ -204,20 +201,21 @@ fun SignupScreen(navController: NavHostController) {
             }
 
             Spacer(modifier = Modifier.height(4.dp))
-            TextButton(onClick = {  navController.navigate("signin") {
-                popUpTo(navController.graph.startDestinationId)
-                launchSingleTop=true
-            } })
-            {
+            TextButton(onClick = {
+                navController.navigate("signin") {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }) {
                 Row {
-                    Text(text = "Already have an account?",
+                    Text(
+                        text = "Already have an account?",
                         color = Color.Gray,
-                        fontWeight = FontWeight.Bold)
-                    Text("Sign In", color = Color.Blue,fontWeight = FontWeight.Normal)
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Sign In", color = Color.Blue, fontWeight = FontWeight.Normal)
                 }
             }
-
-
         }
     }
 }

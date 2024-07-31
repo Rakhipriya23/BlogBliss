@@ -1,7 +1,6 @@
 package com.example.blogging_app.Screens
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,37 +22,29 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.blogging_app.R
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.blogging_app.item_view.ThreadItem
 import com.example.blogging_app.model.ThreadModel
-import com.example.blogging_app.model.UserModel
-import com.example.blogging_app.navigation.Routes
-import com.example.blogging_app.utils.SharedPref
-import com.example.blogging_app.viewmodel.AddThreadViewModel
 import com.example.blogging_app.viewmodel.AuthViewModel
 import com.example.blogging_app.viewmodel.UserViewModel
 
-
 @Composable
-fun Profile(navHostController: NavHostController) {
+fun OtherUserProfile(navHostController: NavHostController, uid: String) {
     val authViewModel: AuthViewModel = viewModel()
     val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
     val context = LocalContext.current
-    val userViewModel: UserViewModel = viewModel()
-    val addThreadViewModel: AddThreadViewModel = viewModel()
-    val threads by userViewModel.threads.observeAsState(null)
-    val user = UserModel(
-        username = SharedPref.getUserName(context),
-        imageUrl = SharedPref.getImage(context)
-    )
-    //
-    val username = remember { SharedPref.getUserName(context) }
-    val imageUri = remember { SharedPref.getImage(context) }
 
+    val userViewModel: UserViewModel = viewModel()
+    val threads by userViewModel.threads.observeAsState(null)
+    val users by userViewModel.users.observeAsState(null)
+
+    val username = remember { mutableStateOf("") }
+    val imageUri = remember { mutableStateOf("") }
+
+    userViewModel.fetchPost(uid)
+    userViewModel.fetchUser(uid)
     LaunchedEffect(firebaseUser) {
         if (firebaseUser == null) {
             navHostController.navigate("signin") {
@@ -61,11 +52,13 @@ fun Profile(navHostController: NavHostController) {
                 launchSingleTop = true
             }
         } else {
-            firebaseUser?.uid?.let {
-                authViewModel.fetchUserData(it)
-                userViewModel.fetchPost(it)
-            }
+            authViewModel.fetchUserData(uid)
         }
+    }
+
+    userViewModel.users.observeAsState().value?.let { user ->
+        username.value = user.username
+        imageUri.value = user.imageUrl
     }
 
     Column(
@@ -84,35 +77,10 @@ fun Profile(navHostController: NavHostController) {
                 painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                 contentDescription = "Back",
                 modifier = Modifier.clickable {
-                    navHostController.navigate(Routes.Home.route)
+                    navHostController.popBackStack()
                 }
             )
-
             Spacer(modifier = Modifier.weight(1f))
-
-            var expanded by remember { mutableStateOf(false) }
-
-            IconButton(onClick = { expanded = true }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_more_vert_24),
-                    contentDescription = "Menu",
-                    tint = Color.Black
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(onClick = {
-                        authViewModel.logout()
-                        navHostController.navigate("signin") {
-                            popUpTo(navHostController.graph.startDestinationId) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    }) {
-                        Text("Logout")
-                    }
-                }
-            }
         }
 
         Column(
@@ -122,12 +90,12 @@ fun Profile(navHostController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            if (imageUri.isNotEmpty()) {
+            if (imageUri.value.isNotEmpty()) {
                 Image(
-                    painter = rememberAsyncImagePainter(imageUri),
+                    painter = rememberAsyncImagePainter(imageUri.value),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(228.dp)
+                        .size(128.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
@@ -135,7 +103,7 @@ fun Profile(navHostController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = username,
+                text = username.value,
                 color = Color.Black,
                 fontSize = 24.sp,
                 fontStyle = FontStyle.Italic,
@@ -151,17 +119,21 @@ fun Profile(navHostController: NavHostController) {
                     .fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(17.dp))
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
             ) {
-                items(threads ?: emptyList()) { thread ->
-                    ThreadTitleDescriptionItem(
-                        thread = thread,
-                        userViewModel = userViewModel,
-                        context = context
-                    )
+                if (threads != null && users != null) {
+                    threads?.let { threadList ->
+                        items(threadList) { thread ->
+                            ThreadTitleDescription(
+                                thread = thread,
+                                userViewModel = userViewModel,
+                                navHostController = navHostController,
+                                context = context
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -169,12 +141,13 @@ fun Profile(navHostController: NavHostController) {
 }
 
 @Composable
-fun ThreadTitleDescriptionItem(
+fun ThreadTitleDescription(
     thread: ThreadModel,
     userViewModel: UserViewModel,
-    context: Context
+    context: Context,
+    navHostController: NavHostController
 )
- {
+{
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,24 +182,5 @@ fun ThreadTitleDescriptionItem(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Button(
-                onClick = {},
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue),
-                modifier = Modifier.padding(end = 8.dp)
-            ) {
-                Text(text = "Edit", color = Color.White, fontSize = 14.sp)
-            }
-            Button(
-                onClick = {
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
-            ) {
-                Text(text = "Delete", color = Color.White, fontSize = 14.sp)
-            }
-        }
     }
 }

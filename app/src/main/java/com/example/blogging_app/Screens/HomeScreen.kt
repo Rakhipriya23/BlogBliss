@@ -50,6 +50,8 @@ fun HomeScreen(navHostController: NavHostController) {
     LazyColumn(
         modifier = Modifier.background(color = Color.White)
     ) {
+
+
         items( threadAndUsers ?: emptyList()){ pairs ->
             ThreadItem(thread = pairs.first,
                         users = pairs.second,

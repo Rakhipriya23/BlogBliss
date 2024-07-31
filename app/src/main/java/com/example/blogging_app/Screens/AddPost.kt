@@ -112,7 +112,7 @@ fun AddPost(navController: NavController) {
     LaunchedEffect(isPosted) {
         if (isPosted) {
             threadViewModel.clearInputs()
-            Toast.makeText(context, "Thread added", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Successfully blog added ", Toast.LENGTH_SHORT).show()
             navController.navigate(Routes.Home.route) {
                 popUpTo(Routes.Add.route) {
                     inclusive = true
@@ -228,7 +228,6 @@ fun AddPost(navController: NavController) {
                     )
                 } else {
                     // Show the placeholder text when no image is selected
-                    //threadViewMode.saveData(thread,FirebaseAuth.getInstance().currentUser!!.uid,"")
                     Text(
                         text = "+ Upload poster image",
                         style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.Gray)
