@@ -10,34 +10,38 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class UserViewModel:ViewModel() {
-    private val db=FirebaseDatabase.getInstance()
-    val threadRef=db.getReference("posts")
-    val userRef= db.getReference("users")
+class UserViewModel : ViewModel() {
+    private val db = FirebaseDatabase.getInstance()
+    val threadRef = db.getReference("posts")
+    val userRef = db.getReference("users")
 
-    private val _threads = MutableLiveData(listOf<ThreadModel>())
+    private val _threads = MutableLiveData<List<ThreadModel>>(emptyList())
     val threads: LiveData<List<ThreadModel>> get() = _threads
 
-    private val _users = MutableLiveData(UserModel())
+    private val _users = MutableLiveData<UserModel>()
     val users: LiveData<UserModel> get() = _users
 
-    //fetch the user
-    fun fetchUser(uid:String){
-        userRef.child(uid).addListenerForSingleValueEvent(object :ValueEventListener{
+    // Fetch the user
+    fun fetchUser(uid: String) {
+        userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val user=snapshot.getValue(UserModel::class.java)
-                _users.postValue(user)
+                val user = snapshot.getValue(UserModel::class.java)
+                user?.let { _users.postValue(it) }
             }
 
             override fun onCancelled(error: DatabaseError) {
             }
         })
     }
-    //fetch the users own post
-    fun fetchPost(uid:String){
-        threadRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object :ValueEventListener{
+
+    // Fetch the user's own posts
+    fun fetchPost(uid: String) {
+        threadRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val threadList=snapshot.children.mapNotNull { it.getValue(ThreadModel::class.java) }
+                val threadList = snapshot.children.mapNotNull {
+                    val thread = it.getValue(ThreadModel::class.java)
+                    thread?.copy(id = it.key ?: "")
+                }
                 _threads.postValue(threadList)
             }
 
@@ -46,6 +50,8 @@ class UserViewModel:ViewModel() {
         })
     }
 
-
-
+    // Remove a thread from the list
+    fun removeThread(thread: ThreadModel) {
+        _threads.value = _threads.value?.filter { it.id != thread.id }
+    }
 }

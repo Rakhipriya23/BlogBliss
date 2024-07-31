@@ -28,22 +28,7 @@ class MainActivity : ComponentActivity() {
                     NavGraph(NavController = navController)
                 }
 
-//                VerificationScreen()
-//                MyApp()
             }
         }
     }
 }
-
-//@Composable
-//fun MyApp() {
-//    val navController = rememberNavController()
-//
-//    NavHost(navController = navController, startDestination = Routes.Splash.route) {
-//        composable(Routes.Splash.route) { SplashScreen(navController) }
-//        composable(Routes.SignIn.route) { SignInScreen(navController) }
-//        composable(Routes.SignUp.route) { SignupScreen(navController) }
-//        composable(Routes.BottomNav.route) { BottomNav(navController) }
-//        composable(Routes.Verfication.route){ VerificationScreen()}
-//    }
-//}

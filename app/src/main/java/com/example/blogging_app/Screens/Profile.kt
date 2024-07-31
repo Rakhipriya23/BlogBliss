@@ -26,9 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.blogging_app.R
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.blogging_app.item_view.ThreadItem
 import com.example.blogging_app.model.ThreadModel
 import com.example.blogging_app.model.UserModel
 import com.example.blogging_app.navigation.Routes
@@ -36,7 +34,7 @@ import com.example.blogging_app.utils.SharedPref
 import com.example.blogging_app.viewmodel.AddThreadViewModel
 import com.example.blogging_app.viewmodel.AuthViewModel
 import com.example.blogging_app.viewmodel.UserViewModel
-
+import com.google.firebase.database.FirebaseDatabase
 
 @Composable
 fun Profile(navHostController: NavHostController) {
@@ -50,7 +48,7 @@ fun Profile(navHostController: NavHostController) {
         username = SharedPref.getUserName(context),
         imageUrl = SharedPref.getImage(context)
     )
-    //
+
     val username = remember { SharedPref.getUserName(context) }
     val imageUri = remember { SharedPref.getImage(context) }
 
@@ -173,8 +171,7 @@ fun ThreadTitleDescriptionItem(
     thread: ThreadModel,
     userViewModel: UserViewModel,
     context: Context
-)
- {
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,7 +179,6 @@ fun ThreadTitleDescriptionItem(
             .background(Color.White)
             .padding(16.dp)
             .clip(MaterialTheme.shapes.medium)
-            //for background(color)
             .background(Color(0xFFF0ECEC))
     ) {
         if (thread.image.isNotEmpty()) {
@@ -218,14 +214,24 @@ fun ThreadTitleDescriptionItem(
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue),
                 modifier = Modifier.padding(end = 8.dp)
             ) {
-                Text(text = "Edit", color = Color.White, fontSize = 14.sp)
+                Text("Edit", color = Color.White)
             }
             Button(
                 onClick = {
+                    FirebaseDatabase.getInstance().getReference("posts")
+                        .child(thread.id)
+                        .removeValue()
+                        .addOnSuccessListener {
+                            userViewModel.removeThread(thread)
+                            Toast.makeText(context, "Post deleted successfully", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed to delete post", Toast.LENGTH_SHORT).show()
+                        }
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
             ) {
-                Text(text = "Delete", color = Color.White, fontSize = 14.sp)
+                Text("Delete", color = Color.White)
             }
         }
     }

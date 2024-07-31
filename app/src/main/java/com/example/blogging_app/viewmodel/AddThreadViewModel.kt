@@ -21,13 +21,14 @@ class AddThreadViewModel : ViewModel() {
 
      private val _userData = MutableLiveData<UserModel>()
      val userData: LiveData<UserModel> = _userData
+
      private val _error = MutableLiveData<String>()
      val error: LiveData<String> = _error
 
      private val _isPosted = MutableLiveData<Boolean>()
      val isPosted: LiveData<Boolean> = _isPosted
 
-      fun saveImage(
+     fun saveImage(
           title: String,
           description: String,
           userId: String,
@@ -42,13 +43,15 @@ class AddThreadViewModel : ViewModel() {
           }
      }
 
-      fun saveData(
+     fun saveData(
           title: String,
           description: String,
           userId: String,
           image: String
      ) {
+          val postId = userRef.push().key ?: return
           val threadData = ThreadModel(
+               id = postId,
                title = title,
                description = description,
                image = image,
@@ -56,7 +59,7 @@ class AddThreadViewModel : ViewModel() {
                timeStamp = System.currentTimeMillis().toString()
           )
 
-          userRef.child(userRef.push().key!!).setValue(threadData)
+          userRef.child(postId).setValue(threadData)
                .addOnSuccessListener {
                     _isPosted.postValue(true)
                }
@@ -69,7 +72,9 @@ class AddThreadViewModel : ViewModel() {
           userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
                override fun onDataChange(snapshot: DataSnapshot) {
                     val user = snapshot.getValue(UserModel::class.java)
-                    _userData.postValue(user!!)
+                    user?.let {
+                         _userData.postValue(it)
+                    } ?: _error.postValue("User not found")
                }
 
                override fun onCancelled(error: DatabaseError) {
@@ -85,6 +90,7 @@ class AddThreadViewModel : ViewModel() {
                saveData(title, description, userId, "")
           }
      }
+
      fun clearInputs() {
           _isPosted.value = false
      }

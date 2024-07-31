@@ -48,7 +48,7 @@ fun HomeScreen(navHostController: NavHostController) {
     val homeViewModel : HomeViewModel = viewModel()
     val threadAndUsers by homeViewModel.threadsAndUsers.observeAsState(null)
     LazyColumn(
-        modifier = Modifier.background(color = Color.White)
+        modifier = Modifier.background(color = Color.White).fillMaxSize()
     ) {
 
 
