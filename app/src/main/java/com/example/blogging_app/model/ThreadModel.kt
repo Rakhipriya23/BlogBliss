@@ -6,5 +6,5 @@ data class ThreadModel(
     val description: String = "",
     val image: String = "",
     val userId: String = "",
-    val timeStamp: String = ""
+    val timeStamp: String = "",
 )

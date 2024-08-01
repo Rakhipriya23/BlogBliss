@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.navigation.NavHostController
 import com.example.blogging_app.model.UserModel
 import com.example.blogging_app.utils.SharedPref
@@ -20,6 +21,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import java.util.UUID
 
 @Suppress("UNREACHABLE_CODE")
@@ -27,7 +29,7 @@ class AuthViewModel : ViewModel() {
      private val auth = FirebaseAuth.getInstance()
      private val db = FirebaseDatabase.getInstance()
      private val userRef = db.getReference("users")
-
+     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
      private val storageRef = FirebaseStorage.getInstance().reference
 
      private val _firebaseUser = MutableLiveData<FirebaseUser?>()
@@ -190,4 +192,11 @@ class AuthViewModel : ViewModel() {
           _error.value = null
      }
 
+     //for search
+     // LiveData to observe the logged-in user ID
+     val loggedInUserId = liveData(Dispatchers.IO) {
+          val userId = firebaseAuth.currentUser?.uid ?: ""
+          emit(userId)
+     }
 }
+

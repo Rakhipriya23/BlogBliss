@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.blogging_app.R
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.blogging_app.model.ThreadModel
 import com.example.blogging_app.model.UserModel
 import com.example.blogging_app.navigation.Routes
@@ -66,102 +68,110 @@ fun Profile(navHostController: NavHostController) {
         }
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF0ECEC))
             .padding(25.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.baseline_arrow_back_24),
-                contentDescription = "Back",
-                modifier = Modifier.clickable {
-                    navHostController.navigate(Routes.Home.route)
-                }
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            var expanded by remember { mutableStateOf(false) }
-
-            IconButton(onClick = { expanded = true }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_more_vert_24),
-                    contentDescription = "Menu",
-                    tint = Color.Black
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_arrow_back_24),
+                    contentDescription = "Back",
+                    modifier = Modifier.clickable {
+                        navHostController.navigate(Routes.Home.route)
+                    }
                 )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(onClick = {
-                        authViewModel.logout()
-                        navHostController.navigate("signin") {
-                            popUpTo(navHostController.graph.startDestinationId) { inclusive = true }
-                            launchSingleTop = true
+                Spacer(modifier = Modifier.width(12.dp))
+                androidx.compose.material3.Text(
+                    text = "Profile",
+                    style = TextStyle(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 24.sp,
+                        color = Color.Black
+                    ),
+                )
+                Spacer(modifier = Modifier.weight(1f))
+
+                var expanded by remember { mutableStateOf(false) }
+
+                IconButton(onClick = { expanded = true }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_more_vert_24),
+                        contentDescription = "Menu",
+                        tint = Color.Black
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(onClick = {
+                            authViewModel.logout()
+                            navHostController.navigate("signin") {
+                                popUpTo(navHostController.graph.startDestinationId) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }) {
+                            Text("Logout")
                         }
-                    }) {
-                        Text("Logout")
                     }
                 }
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            if (imageUri.isNotEmpty()) {
-                Image(
-                    painter = rememberAsyncImagePainter(imageUri),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(228.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = username,
-                color = Color.Black,
-                fontSize = 24.sp,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-            Divider(
-                color = Color.DarkGray,
-                thickness = 2.dp,
+        item {
+            Column(
                 modifier = Modifier
-                    .padding(vertical = 16.dp)
                     .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(17.dp))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
+                    .padding(top = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
-                items(threads ?: emptyList()) { thread ->
-                    ThreadTitleDescriptionItem(
-                        thread = thread,
-                        userViewModel = userViewModel,
-                        context = context
+                if (imageUri.isNotEmpty()) {
+                    Image(
+                        painter = rememberAsyncImagePainter(imageUri),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(228.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = username,
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Divider(
+                    color = Color.DarkGray,
+                    thickness = 2.dp,
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(17.dp))
             }
+        }
+
+        items(threads ?: emptyList()) { thread ->
+            ThreadTitleDescriptionItem(
+                thread = thread,
+                userViewModel = userViewModel,
+                context = context,
+                navHostController = navHostController
+            )
         }
     }
 }
@@ -170,7 +180,8 @@ fun Profile(navHostController: NavHostController) {
 fun ThreadTitleDescriptionItem(
     thread: ThreadModel,
     userViewModel: UserViewModel,
-    context: Context
+    context: Context,
+    navHostController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -210,7 +221,9 @@ fun ThreadTitleDescriptionItem(
             horizontalArrangement = Arrangement.End
         ) {
             Button(
-                onClick = {},
+                onClick = {
+                    navHostController.navigate(Routes.Edit.route.replace("{threadId}",thread.id))
+                },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Blue),
                 modifier = Modifier.padding(end = 8.dp)
             ) {

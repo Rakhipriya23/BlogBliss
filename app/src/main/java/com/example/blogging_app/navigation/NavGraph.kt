@@ -25,5 +25,11 @@ import com.example.blogging_app.Screens.*
                 OtherUserProfile(navController, it)
             }
         }
+        composable(Routes.Edit.route) { backStackEntry ->
+            val threadId = backStackEntry.arguments?.getString("threadId")
+            threadId?.let {
+                EditPost(navController, it)
+            }
+        }
     }
 }

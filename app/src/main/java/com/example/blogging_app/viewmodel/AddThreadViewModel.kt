@@ -94,4 +94,56 @@ class AddThreadViewModel : ViewModel() {
      fun clearInputs() {
           _isPosted.value = false
      }
+
+     //for edit the post fetch the post to editpost page
+     fun fetchThread(threadId: String) {
+          userRef.child(threadId).addListenerForSingleValueEvent(object : ValueEventListener {
+               override fun onDataChange(snapshot: DataSnapshot) {
+                    val thread = snapshot.getValue(ThreadModel::class.java)
+                    thread?.let {
+                         // Update UI state here
+                    } ?: _error.postValue("Thread not found")
+               }
+
+               override fun onCancelled(error: DatabaseError) {
+                    _error.postValue(error.message)
+               }
+          })
+     }
+     //edit
+     private val _isUpdated = MutableLiveData<Boolean>()
+     val isUpdated: LiveData<Boolean> get() = _isUpdated
+
+     fun updateThread(threadId: String, title: String, description: String, imageUri: Uri?, userId: String) {
+          val threadRef = userRef.child(threadId)
+          val threadUpdates = mapOf<String, Any>(
+               "title" to title,
+               "description" to description,
+               "image" to (imageUri?.toString() ?: "")
+          )
+          threadRef.updateChildren(threadUpdates)
+               .addOnSuccessListener {
+                    _isUpdated.value = true
+               }
+               .addOnFailureListener {
+                    _isUpdated.value = false
+               }
+     }
+
+     // to fetch the existing data to the edit post page
+     fun getThreadById(threadId: String, onResult: (ThreadModel?) -> Unit) {
+          val threadRef = userRef.child(threadId)
+          threadRef.addListenerForSingleValueEvent(object : ValueEventListener {
+               override fun onDataChange(snapshot: DataSnapshot) {
+                    val thread = snapshot.getValue(ThreadModel::class.java)
+                    onResult(thread)
+               }
+
+               override fun onCancelled(error: DatabaseError) {
+                    onResult(null)
+               }
+          })
+     }
 }
+
+

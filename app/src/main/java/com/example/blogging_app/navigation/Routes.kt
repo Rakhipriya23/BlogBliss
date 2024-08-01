@@ -14,4 +14,5 @@ sealed class Routes(val route: String) {
     object Notification : Routes("notification_route")
     object Profile : Routes("profile_route")
     object OtherUsers:Routes("other_users/{data}")
+    object Edit:Routes("edit/{threadId}")
 }

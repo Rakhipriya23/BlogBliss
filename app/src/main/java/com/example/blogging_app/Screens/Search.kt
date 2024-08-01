@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import com.example.blogging_app.R
 import com.example.blogging_app.item_view.UserItem
 import com.example.blogging_app.navigation.Routes
+import com.example.blogging_app.viewmodel.AuthViewModel
 import com.example.blogging_app.viewmodel.SearchViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,12 +44,15 @@ fun Search(navHostController: NavHostController) {
     val searchViewModel: SearchViewModel = viewModel()
     val userList by searchViewModel.users.observeAsState(emptyList())
     var searchQuery by remember { mutableStateOf("") }
-    //for color of icon
     var isFocused by remember { mutableStateOf(false) }
 
-    // Filter users based on the search query
+    // Fetch logged-in user ID (assume you have a method to get this)
+    val authViewModel: AuthViewModel = viewModel() // Assuming you have an AuthViewModel
+    val loggedInUserId by authViewModel.loggedInUserId.observeAsState("")
+
+    // Filter users based on the search query and exclude the logged-in user
     val filteredUsers = userList.filter { user ->
-        user.username.contains(searchQuery, ignoreCase = true)
+        user.uid != loggedInUserId && user.username.contains(searchQuery, ignoreCase = true)
     }
 
     Column(
@@ -57,9 +61,11 @@ fun Search(navHostController: NavHostController) {
             .fillMaxSize()
             .padding(17.dp)
     ) {
-        //top
-        Row(verticalAlignment = Alignment.CenterVertically
-        ,modifier = Modifier.padding(top = 10.dp, start = 16.dp, bottom = 10.dp)) {
+        // Top Bar
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 10.dp, start = 16.dp, bottom = 10.dp)
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                 contentDescription = "close",
@@ -68,23 +74,27 @@ fun Search(navHostController: NavHostController) {
                 }
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = "Search", style = TextStyle(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 24.sp,
-                color = Color.Black
-            ),
-                )
+            Text(
+                text = "Search",
+                style = TextStyle(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 24.sp,
+                    color = Color.Black
+                ),
+            )
             Spacer(modifier = Modifier.height(6.dp))
         }
 
-        // Search bar
+        // Search Bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             label = {
-                Text("Search by username",
+                Text(
+                    "Search by username",
                     color = if (isFocused) Color(0xFFab06f6) else Color.Gray,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             },
             leadingIcon = {
                 Icon(
@@ -95,11 +105,11 @@ fun Search(navHostController: NavHostController) {
             },
             colors = androidx.compose.material3.TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = Color.Black,
-                cursorColor =Color(0xFFab06f6) ,
-                focusedBorderColor = Color(0xFFab06f6), // Purple color
-                unfocusedBorderColor = Color.DarkGray, // Grey color
-                focusedLeadingIconColor = Color(0xFFab06f6), // Purple color
-                unfocusedLeadingIconColor = Color.Gray // Grey color
+                cursorColor = Color(0xFFab06f6),
+                focusedBorderColor = Color(0xFFab06f6),
+                unfocusedBorderColor = Color.DarkGray,
+                focusedLeadingIconColor = Color(0xFFab06f6),
+                unfocusedLeadingIconColor = Color.Gray
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -110,7 +120,7 @@ fun Search(navHostController: NavHostController) {
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // User list
+        // User List
         LazyColumn {
             items(filteredUsers) { user ->
                 UserItem(
@@ -121,3 +131,4 @@ fun Search(navHostController: NavHostController) {
         }
     }
 }
+
