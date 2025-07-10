@@ -1,5 +1,6 @@
 package com.example.blogging_app.Screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -61,7 +62,10 @@ fun HomeScreen(navHostController: NavHostController) {
 
     val context = LocalContext.current
     val homeViewModel : HomeViewModel = viewModel()
-    val threadAndUsers by homeViewModel.threadsAndUsers.observeAsState(null)
+    val threadAndUsers by homeViewModel.threadsAndUsers.observeAsState(emptyList())
+
+    Log.d("HomeScreen", "Number of threads fetched: ${threadAndUsers?.size}")
+
     LazyColumn(
         modifier = Modifier.background(color = Color.White).fillMaxSize()
     ) {
@@ -83,11 +87,8 @@ fun HomeScreen(navHostController: NavHostController) {
                 )
             }
         }
-        items( threadAndUsers ?: emptyList()){ pairs ->
-            ThreadItem(thread = pairs.first,
-                        users = pairs.second,
-                        navHostController,
-                        FirebaseAuth.getInstance().currentUser!!.uid)
+        items(threadAndUsers) { (thread, user) ->
+            ThreadItem(thread = thread, users = user, navHostController = navHostController, userId = FirebaseAuth.getInstance().currentUser!!.uid)
         }
     }
 }
